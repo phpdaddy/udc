@@ -45,10 +45,9 @@ public class Loaders {
     }
 
     private List<CategoryElastic> getData() {
-        List<com.phpdaddy.udc.model.jpa.Category> allByChildrenIsEmpty = categoryJpaRepository.findAll();
+        List<com.phpdaddy.udc.model.jpa.Category> list = categoryJpaRepository.findAll();
 
-        return allByChildrenIsEmpty.stream()
-                .filter(category -> (category.getChildren().isEmpty() && category.getName() != null))
+        return list.stream()
                 .map(c -> categoryElasticDtoMapper.categoryToCategoryElastic(c))
                 .collect(Collectors.toList());
     }
