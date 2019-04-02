@@ -2,7 +2,7 @@ package com.phpdaddy.udc.resource;
 
 import com.phpdaddy.udc.extra.Helper;
 import com.phpdaddy.udc.model.elastic.CategoryElastic;
-import com.phpdaddy.udc.repository.elastic.CategoryRepository;
+import com.phpdaddy.udc.repository.elastic.CategoryElasticRepository;
 import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -30,7 +30,7 @@ import java.util.Optional;
 public class CategoryElasticResource {
 
     @Autowired
-    CategoryRepository categoryRepository;
+    CategoryElasticRepository categoryRepository;
 
     @Autowired
     ElasticsearchOperations elasticsearchOperations;
@@ -58,7 +58,7 @@ public class CategoryElasticResource {
 
         Arrays.stream(keywords).forEach(keyword ->
         {
-            qb.should(QueryBuilders.fuzzyQuery("fullPath", keyword)
+            qb.should(QueryBuilders.fuzzyQuery("keywords", keyword)
                     .fuzziness(Fuzziness.AUTO));
 
         });

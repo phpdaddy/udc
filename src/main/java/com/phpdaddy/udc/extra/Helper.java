@@ -1,5 +1,7 @@
 package com.phpdaddy.udc.extra;
 
+import com.phpdaddy.udc.model.jpa.Category;
+import org.mapstruct.Named;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,5 +18,10 @@ public class Helper {
                         .replaceAll(" +", " ").trim()
                         .replaceAll("[ ]", ",");
     }
+
+    public String getFullPath(Category c) {
+        return (c.getParent() != null ? (this.getFullPath(c.getParent()) + " => ") : "") + c.getName();
+    }
+
 
 }

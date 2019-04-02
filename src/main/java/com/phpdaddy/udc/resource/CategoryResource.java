@@ -4,8 +4,12 @@ import com.phpdaddy.udc.dto.CategoryDto;
 import com.phpdaddy.udc.dto.CategoryTreeDto;
 import com.phpdaddy.udc.dto.CategoryUpdateDto;
 import com.phpdaddy.udc.mapper.CategoryVsCategoryDtoMapper;
+import com.phpdaddy.udc.mapper.CategoryVsCategoryElasticMapper;
 import com.phpdaddy.udc.mapper.CategoryVsCategoryTreeDtoMapper;
 import com.phpdaddy.udc.mapper.CategoryVsCategoryUpdateMapper;
+import com.phpdaddy.udc.model.elastic.CategoryElastic;
+import com.phpdaddy.udc.model.jpa.Category;
+import com.phpdaddy.udc.repository.elastic.CategoryElasticRepository;
 import com.phpdaddy.udc.repository.jpa.CategoryJpaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +33,12 @@ public class CategoryResource {
     @Autowired
     CategoryVsCategoryUpdateMapper categoryVsCategoryUpdateMapper;
 
+    @Autowired
+    CategoryVsCategoryElasticMapper categoryElasticDtoMapper;
+
+    @Autowired
+    private CategoryElasticRepository categoryElasticRepository;
+
     @GetMapping(value = "/tree")
     public List<CategoryTreeDto> tree() {
 
@@ -47,9 +57,14 @@ public class CategoryResource {
     @PostMapping(value = "")
     @Transactional
     public void save(@RequestBody List<CategoryUpdateDto> categoryUpdateDtos) {
-
-        categoryJpaRepository.save(categoryUpdateDtos.stream()
+        List<Category> collect = categoryUpdateDtos.stream()
                 .map(c -> categoryVsCategoryUpdateMapper
-                        .categoryUpdateDtoToCategory(c)).collect(Collectors.toList()));
+                        .categoryUpdateDtoToCategory(c)).collect(Collectors.toList());
+        categoryJpaRepository.save(collect);
+
+        List<CategoryElastic> collect1 = collect.stream().map(c -> categoryElasticDtoMapper.categoryToCategoryElastic(c))
+                .collect(Collectors.toList());
+
+        categoryElasticRepository.save(collect1);
     }
 }

@@ -3,7 +3,7 @@ package com.phpdaddy.udc.load;
 import com.phpdaddy.udc.extra.Helper;
 import com.phpdaddy.udc.mapper.CategoryVsCategoryElasticMapper;
 import com.phpdaddy.udc.model.elastic.CategoryElastic;
-import com.phpdaddy.udc.repository.elastic.CategoryRepository;
+import com.phpdaddy.udc.repository.elastic.CategoryElasticRepository;
 import com.phpdaddy.udc.repository.jpa.CategoryJpaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
@@ -21,13 +21,13 @@ public class Loaders {
     ElasticsearchOperations operations;
 
     @Autowired
-    CategoryRepository categoryRepository;
+    CategoryElasticRepository categoryElasticRepository;
 
     @Autowired
     CategoryJpaRepository categoryJpaRepository;
 
     @Autowired
-    Helper keywordsExtractor;
+    Helper helper;
 
     @Autowired
     CategoryVsCategoryElasticMapper categoryElasticDtoMapper;
@@ -38,8 +38,8 @@ public class Loaders {
 
         operations.putMapping(CategoryElastic.class);
         System.out.println("Loading Data");
-        categoryRepository.deleteAll();
-        categoryRepository.save(getData());
+        categoryElasticRepository.deleteAll();
+        categoryElasticRepository.save(getData());
         System.out.printf("Loading Completed");
 
     }
