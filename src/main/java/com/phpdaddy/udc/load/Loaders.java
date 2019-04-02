@@ -1,6 +1,8 @@
 package com.phpdaddy.udc.load;
 
-import com.phpdaddy.udc.model.elastic.Category;
+import com.phpdaddy.udc.extra.Helper;
+import com.phpdaddy.udc.mapper.CategoryVsCategoryElasticMapper;
+import com.phpdaddy.udc.model.elastic.CategoryElastic;
 import com.phpdaddy.udc.repository.elastic.CategoryRepository;
 import com.phpdaddy.udc.repository.jpa.CategoryJpaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +26,17 @@ public class Loaders {
     @Autowired
     CategoryJpaRepository categoryJpaRepository;
 
+    @Autowired
+    Helper keywordsExtractor;
+
+    @Autowired
+    CategoryVsCategoryElasticMapper categoryElasticDtoMapper;
+
     @PostConstruct
     @Transactional
     public void loadAll() {
 
-        operations.putMapping(Category.class);
+        operations.putMapping(CategoryElastic.class);
         System.out.println("Loading Data");
         categoryRepository.deleteAll();
         categoryRepository.save(getData());
@@ -36,14 +44,13 @@ public class Loaders {
 
     }
 
-    private List<Category> getData() {
+    private List<CategoryElastic> getData() {
         List<com.phpdaddy.udc.model.jpa.Category> allByChildrenIsEmpty = categoryJpaRepository.findAll();
 
-        return allByChildrenIsEmpty.stream().filter(category -> category.getChildren().isEmpty()).map(c ->
-                new Category(c.getName(), c.getId(), c.getCode(), getFullPath(c))).collect(Collectors.toList());
+        return allByChildrenIsEmpty.stream()
+                .filter(category -> (category.getChildren().isEmpty() && category.getName() != null))
+                .map(c -> categoryElasticDtoMapper.categoryToCategoryElastic(c))
+                .collect(Collectors.toList());
     }
 
-    private String getFullPath(com.phpdaddy.udc.model.jpa.Category c) {
-        return (c.getParent() != null ? (getFullPath(c.getParent()) + " => ") : "") + c.getName();
-    }
 }

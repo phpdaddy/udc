@@ -1,10 +1,8 @@
 package com.phpdaddy.udc.resource;
 
-import com.phpdaddy.udc.model.elastic.Category;
+import com.phpdaddy.udc.extra.Helper;
+import com.phpdaddy.udc.model.elastic.CategoryElastic;
 import com.phpdaddy.udc.repository.elastic.CategoryRepository;
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -14,8 +12,6 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.DefaultEntityMapper;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
-import org.springframework.data.elasticsearch.core.EntityMapper;
-import org.springframework.data.elasticsearch.core.ResultsExtractor;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,11 +24,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 @RestController
-@RequestMapping("/rest/search")
-public class SearchResource {
+@RequestMapping("/rest/categories/search")
+public class CategoryElasticResource {
 
     @Autowired
     CategoryRepository categoryRepository;
@@ -40,22 +35,25 @@ public class SearchResource {
     @Autowired
     ElasticsearchOperations elasticsearchOperations;
 
+    @Autowired
+    Helper keywordsExtractor;
+
 
     @GetMapping(value = "/keywords/{keywords}")
-    public Category searchByKeywords(@PathVariable final List<String> keywords) {
+    public CategoryElastic searchByKeywords(@PathVariable final List<String> keywords) {
         return searchByKeywords(keywords.toArray(new String[]{}));
     }
 
 
     @GetMapping(value = "/annotation/{annotation}")
-    public Category searchByAnnotation(@PathVariable final String annotation) {
-        String s = annotation.replaceAll("[,.]", " ")
-                .trim().replaceAll(" +", " ").replaceAll("[ ]", ",");
+    public CategoryElastic searchByAnnotation(@PathVariable final String annotation) {
+        String s = keywordsExtractor.getKeyWordsFromText(annotation);
         String[] keywords = s.split(",");
         return searchByKeywords(keywords);
     }
 
-    private Category searchByKeywords(String[] keywords) {
+
+    private CategoryElastic searchByKeywords(String[] keywords) {
         BoolQueryBuilder qb = QueryBuilders.boolQuery();
 
         Arrays.stream(keywords).forEach(keyword ->
@@ -67,35 +65,30 @@ public class SearchResource {
 
         SearchQuery searchQuery = new NativeSearchQueryBuilder()
                 .withQuery(qb).withSort(SortBuilders.fieldSort("_score").order(SortOrder.DESC)).build();
-        List<Category> categories = elasticsearchOperations.query(searchQuery, new ResultsExtractor<List<Category>>() {
+        List<CategoryElastic> categories = elasticsearchOperations.query(searchQuery, searchResponse -> {
+            DefaultEntityMapper entityMapper = new DefaultEntityMapper();
 
-            @Override
-            public List<Category> extract(SearchResponse searchResponse) {
-                DefaultEntityMapper entityMapper = new DefaultEntityMapper();
-
-                List<Category> categoryList = new ArrayList<>();
-                for (SearchHit hit : searchResponse.getHits().getHits()) {
-                    try {
-                        Category category = entityMapper.mapToObject(hit.getSourceAsString(), Category.class);
-                        categoryList.add(category);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    System.out.println("Result: " + hit.getSourceAsString() + " " + hit.getScore());
+            List<CategoryElastic> categoryList = new ArrayList<>();
+            for (SearchHit hit : searchResponse.getHits().getHits()) {
+                try {
+                    CategoryElastic category = entityMapper.mapToObject(hit.getSourceAsString(), CategoryElastic.class);
+                    categoryList.add(category);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-                return categoryList;
+                System.out.println("Result: " + hit.getSourceAsString() + " " + hit.getScore());
             }
+            return categoryList;
         });
-        Optional<Category> first = categories.stream().findFirst();
+        Optional<CategoryElastic> first = categories.stream().findFirst();
 
         return first.orElse(null);
-        //return null;
     }
 
     @GetMapping(value = "/all")
-    public List<Category> searchAll() {
-        List<Category> categoryList = new ArrayList<>();
-        Iterable<Category> categories = categoryRepository.findAll();
+    public List<CategoryElastic> searchAll() {
+        List<CategoryElastic> categoryList = new ArrayList<>();
+        Iterable<CategoryElastic> categories = categoryRepository.findAll();
         categories.forEach(categoryList::add);
         return categoryList;
     }
