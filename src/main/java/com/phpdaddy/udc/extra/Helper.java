@@ -1,16 +1,15 @@
 package com.phpdaddy.udc.extra;
 
 import com.phpdaddy.udc.model.jpa.Category;
-import org.mapstruct.Named;
 import org.springframework.stereotype.Service;
 
 @Service
 public class Helper {
 
-    public String getKeyWordsFromText(String fullPath) {
+    public String getKeyWordsFromText(String text) {
         String excluded = "[ ,.](в|без|до|из|к|на|по|о|от|перед|при|через|с|у|нет|за|над|для|об|под|про|и)[ ,.]";
         return
-                fullPath
+                text
                         .replaceAll("=>", " ").trim()
                         .replaceAll("null", " ").trim()
                         .replaceAll(excluded, " ").trim()
