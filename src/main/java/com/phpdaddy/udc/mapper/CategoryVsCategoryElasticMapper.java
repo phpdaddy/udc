@@ -1,6 +1,5 @@
 package com.phpdaddy.udc.mapper;
 
-import com.phpdaddy.udc.dto.CategoryDto;
 import com.phpdaddy.udc.extra.Helper;
 import com.phpdaddy.udc.model.elastic.CategoryElastic;
 import com.phpdaddy.udc.model.jpa.Category;

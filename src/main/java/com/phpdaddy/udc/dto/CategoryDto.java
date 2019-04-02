@@ -1,6 +1,5 @@
 package com.phpdaddy.udc.dto;
 
-import com.phpdaddy.udc.model.jpa.Category;
 import lombok.Data;
 
 import java.util.HashSet;

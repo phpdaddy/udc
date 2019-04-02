@@ -1,6 +1,5 @@
 package com.phpdaddy.udc.mapper;
 
-import com.phpdaddy.udc.dto.CategoryDto;
 import com.phpdaddy.udc.dto.CategoryTreeDto;
 import com.phpdaddy.udc.model.jpa.Category;
 import org.mapstruct.Mapper;

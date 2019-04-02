@@ -9,7 +9,6 @@ import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
