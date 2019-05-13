@@ -12,7 +12,7 @@ import java.io.File;
 import java.io.IOException;
 
 @Configuration
-@EnableElasticsearchRepositories(basePackages = "com.phpdaddy.udc.repository.elastic")
+@EnableElasticsearchRepositories(basePackages = "com.misha.udc.repository.elastic")
 public class ElasticConfiguration {
 
 

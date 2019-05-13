@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
-@EnableJpaRepositories(basePackages = "com.phpdaddy.udc.repository.jpa")
-@EntityScan(basePackages = "com.phpdaddy.udc.model.jpa")
+@EnableJpaRepositories(basePackages = "com.misha.udc.repository.jpa")
+@EntityScan(basePackages = "com.misha.udc.model.jpa")
 public class SpringUdcApplication {
 
     public static void main(String[] args) {
